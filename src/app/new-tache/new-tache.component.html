@@ -1,0 +1,35 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="col-sm-8 col-sm-offset-2">
+        <form [formGroup]="tacheForm" (ngSubmit)="onSubmitForm()">
+          <div class="form-group">
+            <label for="firstName">Tache</label>
+            <input type="text" id="firstName" class="form-control" formControlName="name">
+          </div>
+          <div class="form-group">
+            <label for="lastName">Duree</label>
+            <input type="number" id="lastName" class="form-control" formControlName="duree">
+          </div>
+          <div formArrayName="ant">
+            <h6>Tache anterieure</h6>
+            <div class="form-group" *ngFor="let antControl of getAnt().controls; let i = index">
+            <input type="text" class="form-control" [formControlName]="i">
+            </div>
+            <button type="button" mdbBtn type="button" color="secondary" mdbWavesEffect (click)="onAddTa()">Ajouter une TA</button>
+          </div>
+          <br/>
+          <div formArrayName="suc">
+            <h6>Taches Successive</h6>
+            <div class="form-group" *ngFor="let hobbyControl of getHobbies().controls; let i = index">
+              <input type="text" class="form-control" [formControlName]="i">
+            </div>
+            <button type="button" mdbBtn type="button" color="secondary" mdbWavesEffect (click)="onAddHobby()">Ajouter une TS</button>
+      </div>
+      <br/>
+          <button type="submit" mdbBtn mdbWavesEffect color="default" [disabled]="tacheForm.invalid">Soumettre</button>
+        </form>
+      </div>
+    </div>
+  </div> 
+</div>   

@@ -1,0 +1,149 @@
+<!--<ul class="list-group">
+  <li class="list-group-item" *ngFor="let user of users">
+    <h3>{{ user.name }} {{ user.duree }}</h3>
+    <p>{{ user.ant }}</p>
+    <p *ngIf="user.suc && user.suc.length > 0">
+      Cette personne a des hobbies !
+      <span *ngFor="let hobby of user.suc">{{ hobby }} - </span>
+    </p>
+  </li>
+  <a routerLink="/new-user">Nouvel utilisateur</a>
+</ul>-->
+<br/>
+    <h1 class="title">Recherches Operationnelles!</h1>
+      <h3 class="title">Ordonnancement de tache MPM</h3>
+<div class="container col-md-10">
+  <div class="row">
+    <div class="col-xs-12">
+      <br/>
+      <table class="table d-inline" >
+          <tbody class="border-bottom border-right">
+              <tr class="border-left">
+                  <th scope="col">Tâche</th>
+                </tr>
+            <tr class="border-left">
+              <td>Durée</td>
+            </tr>
+            <tr class="border-left">
+                <td>Tache antérieure</td>
+              </tr>
+            <tr class="border-left">
+                <td>Tâche successive</td>
+            </tr>
+          </tbody>
+        </table>
+      <table  *ngFor="let tache of taches;let i = index" class="table d-inline" >
+        <tbody class="border-bottom" (dblclick)="basicModal2.show()">
+            <tr class="border-right">
+                <th scope="col" class="text-center">{{ tache.name }} </th>
+              </tr>
+          <tr class="border-right border-bottom">
+            <td class="text-center">{{ tache.duree }}</td>
+          </tr>
+            <tr class="border-right border-bottom">
+              <span *ngIf="tache.ant && tache.ant.length > 0">
+                <td class="text-center" style="border-top-style: none" *ngFor="let ant of tache.ant">{{ ant }}</td>
+              </span>
+            </tr>
+          <tr class="border-right">
+            <span *ngIf="tache.suc && tache.suc.length > 0">
+              <td class="text-center" style="border-top-style: none" *ngFor="let suc of tache.suc">{{ suc }}</td>
+            </span>
+          </tr>
+
+        <!-- modal modif tache -->
+        <div mdbModal #basicModal2="mdbModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close pull-right" aria-label="Close" (click)="basicModal2.hide()">   <!--initFormModif()">-->
+                    <span aria-hidden="true">×</span>
+                  </button>
+                  <h4 class="modal-title w-100" id="myModalLabel">Modifier tâche </h4>
+                </div>
+                <div class="modal-body">
+                  <form [formGroup]="tacheModif" (ngSubmit)="onSubmitModif(i)">
+                    <div class="form-group">
+                      <label for="firstName">Tâche ({{ tache.name }})</label>
+                      <input type="text" id="firstName" class="form-control" formControlName="name" />
+                    </div>
+                    <div class="form-group">
+                      <label for="lastName">Durée ({{ tache.duree }})</label>
+                      <input type="number" id="lastName" class="form-control" formControlName="duree" />
+                    </div>
+                    <div formArrayName="ant">
+                      <h6 *ngIf="tache.ant && tache.ant.length > 0">Tâche antérieure  
+                          <span class="text-center" *ngFor="let ant of tache.ant;">({{ ant }})</span>
+                      </h6>              
+                      <div *ngIf="tache.ant && tache.ant.length > 0">                        
+                      <div class="form-group" *ngFor="let antControl of getAntM().controls;let i = index">
+                      <input type="text" class="form-control" [formControlName]="i">
+                      </div>
+                      </div>
+                      <button type="button" mdbBtn type="button" color="secondary" mdbWavesEffect (click)="onAddTaM()">Ajouter une TA</button>
+                      <button type="button" mdbBtn type="button" color="secondary" mdbWavesEffect (click)="resetTa()">Reset</button>
+                      <button type="button" mdbBtn type="button" color="danger" mdbWavesEffect (click)="deleteT(i)">Supprimer</button>
+                    </div>
+                    <br/>
+                    <button type="submit" mdbBtn mdbWavesEffect color="default" [disabled]="tacheModif.invalid" (click)="basicModal2.hide()">Soumettre</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </tbody>
+      </table><br/>
+      <div style="margin-top: 10px;">
+        <button type="button" mdbBtn mdbWavesEffect color="default" style="margin-right: 10px;" (click)="basicModal.show()">Nouvelle tâche</button>
+        <button type="button" mdbBtn mdbWavesEffect color="default" style="margin-right: 10px;" class="d-inline" (click)="getTacheSuc()">Tâche successive</button>
+        <button type="button" mdbBtn mdbWavesEffect color="default" style="margin-right: 10px;" class="d-inline" [disabled]="!existTs" (click)="buildGraphe()">Graphe</button>
+        <button type="button" mdbBtn mdbWavesEffect color="default" style="margin-right: 10px;" class="d-inline" (click)="reinitialiserAll()">Reinitialiser</button>
+      </div>
+    </div>    
+  </div>
+</div>
+<!-- modal add tache -->
+<div mdbModal #basicModal="mdbModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myBasicModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="basicModal.hide();initForm()">
+          <span aria-hidden="true">×</span>
+        </button>
+        <h4 class="modal-title w-100" id="myModalLabel">Nouvelle tâche</h4>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="tacheForm" (ngSubmit)="onSubmitForm()">
+          <div class="form-group">
+            <label for="firstName">Tâche</label>
+            <input type="text" id="firstName" class="form-control" formControlName="name">
+          </div>
+          <div class="form-group">
+            <label for="lastName">Durée</label>
+            <input type="number" id="lastName" class="form-control" formControlName="duree">
+          </div>
+          <div formArrayName="ant">
+            <h6>Tâche antérieure</h6>
+            <div class="form-group" *ngFor="let antControl of getAnt().controls; let i = index">
+            <input type="text" class="form-control" [formControlName]="i">
+            </div>
+            <button type="button" mdbBtn type="button" color="secondary" mdbWavesEffect (click)="onAddTa()">Ajouter une Tâche Antérieure</button>
+          </div>
+          <br/>
+          <!--<div formArrayName="suc">
+            <h6>Taches Successive</h6>
+            <div class="form-group" *ngFor="let hobbyControl of getHobbies().controls; let i = index">
+              <input type="text" class="form-control" [formControlName]="i">
+            </div>
+            <button type="button" mdbBtn type="button" color="secondary" mdbWavesEffect (click)="onAddHobby()">Ajouter une TS</button>
+      </div>
+      <br/>-->
+          <button type="submit" mdbBtn mdbWavesEffect color="default" [disabled]="tacheForm.invalid" (click)="basicModal.hide()">Soumettre</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<br/>
+<app-graphe></app-graphe>
